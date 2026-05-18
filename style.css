@@ -135,3 +135,230 @@ a {
 a:hover {
   text-decoration: underline;
 }
+.main-page {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.top-bar {
+  height: 70px;
+  background: rgba(10, 18, 45, 0.85);
+  border: 1px solid rgba(0, 217, 255, 0.3);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 25px;
+  box-shadow: 0 0 25px rgba(0, 217, 255, 0.25);
+}
+
+.top-bar h2 {
+  color: #7ee7ff;
+}
+
+.top-bar button {
+  width: 120px;
+  margin: 0;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.main-window {
+  min-height: 480px;
+  background: rgba(10, 18, 45, 0.85);
+  border: 1px solid rgba(0, 217, 255, 0.3);
+  border-radius: 22px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 0 0 30px rgba(0, 217, 255, 0.2);
+}
+
+.main-window h1 {
+  color: #7ee7ff;
+}
+
+.planet {
+  font-size: 140px;
+  margin: 50px 0;
+  animation: floatPlanet 4s ease-in-out infinite;
+}
+
+@keyframes floatPlanet {
+  0% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-18px);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.mission-info {
+  background: rgba(0, 217, 255, 0.08);
+  border: 1px solid rgba(0, 217, 255, 0.3);
+  border-radius: 16px;
+  padding: 15px;
+}
+
+.favorites {
+  background: rgba(10, 18, 45, 0.85);
+  border: 1px solid rgba(0, 217, 255, 0.3);
+  border-radius: 22px;
+  padding: 20px;
+  box-shadow: 0 0 30px rgba(0, 217, 255, 0.2);
+}
+
+.favorites h2 {
+  color: #7ee7ff;
+  text-align: center;
+}
+
+.craft-card {
+  background: rgba(0, 217, 255, 0.08);
+  border: 1px solid rgba(0, 217, 255, 0.25);
+  border-radius: 15px;
+  padding: 15px;
+  margin-top: 15px;
+  transition: 0.3s;
+}
+
+.craft-card:hover {
+  transform: scale(1.04);
+  box-shadow: 0 0 18px rgba(0, 217, 255, 0.35);
+}
+
+.craft-card h3 {
+  margin: 0;
+  color: white;
+}
+
+.craft-card p {
+  color: #a8b8d8;
+}
+
+.statistics {
+  margin-top: 20px;
+  background: rgba(10, 18, 45, 0.85);
+  border: 1px solid rgba(0, 217, 255, 0.3);
+  border-radius: 22px;
+  padding: 20px;
+  box-shadow: 0 0 30px rgba(0, 217, 255, 0.2);
+}
+
+.statistics h2 {
+  color: #7ee7ff;
+  text-align: center;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 15px;
+}
+
+.stat-card {
+  background: rgba(0, 217, 255, 0.08);
+  border: 1px solid rgba(0, 217, 255, 0.25);
+  border-radius: 15px;
+  text-align: center;
+  padding: 15px;
+}
+
+.stat-card h3 {
+  color: #cfefff;
+}
+
+.stat-card p {
+  font-size: 22px;
+  color: #00ff9d;
+  font-weight: bold;
+}
+
+@media (max-width: 900px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.search-area {
+  display: flex;
+  gap: 10px;
+  margin-top: 25px;
+  justify-content: center;
+}
+
+.search-area input {
+  width: 320px;
+}
+
+.search-area button {
+  width: 120px;
+  margin: 0;
+}
+
+.search-result {
+  margin-top: 30px;
+}
+
+.aircraft-display {
+  animation: fadeIn 0.5s ease;
+}
+
+.aircraft-icon {
+  font-size: 130px;
+  margin: 20px 0;
+}
+
+.not-found {
+  margin-top: 40px;
+  font-size: 28px;
+  color: #ff6b6b;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.header-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-search input {
+  width: 260px;
+  margin: 0;
+}
+
+.header-search button {
+  width: 100px;
+  margin: 0;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
