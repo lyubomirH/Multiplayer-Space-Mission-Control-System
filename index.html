@@ -1,15 +1,161 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mission Control Login</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Space Mission Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="app"></div>
+<div id="stars"></div>
 
-  <script>window.aichatbotApiKey="80242004-fc6e-4c9b-8bdf-89f9d8dda212"; window.aichatbotProviderId="f9e9c5e4-6d1a-4b8c-8d3f-3f9e9c5e46d1";</script><script src="https://script.chatlab.com/aichatbot.js" id="80242004-fc6e-4c9b-8bdf-89f9d8dda212" defer></script>
-  <script src="script.js"></script>
+<!-- ===================== AUTH VIEW ===================== -->
+<section id="view-auth">
+  <div class="glass-card">
+    <h1 class="title">Galaxy Access</h1>
+    <div class="tab-container">
+      <button id="tab-login" class="tab active">Login</button>
+      <button id="tab-register" class="tab">Register</button>
+    </div>
+    <div id="message-container" class="message hidden"></div>
+
+    <form id="login-form" class="auth-form">
+      <div class="input-group">
+        <input type="email" id="login-email" placeholder="Email Address" />
+      </div>
+      <div class="input-group">
+        <input type="password" id="login-password" class="password-input" placeholder="Password" />
+        <button type="button" class="toggle-password">👁️</button>
+      </div>
+      <button type="submit" class="glow-btn">Initialize Login</button>
+    </form>
+
+    <form id="register-form" class="auth-form hidden">
+      <div class="input-group"><input type="email" id="reg-email" placeholder="Email Address" /></div>
+      <div class="input-group"><input type="text" id="reg-username" placeholder="Username" /></div>
+      <div class="input-group">
+        <input type="password" id="reg-password" class="password-input" placeholder="Password" />
+        <button type="button" class="toggle-password">👁️</button>
+      </div>
+      <div class="input-group dual-group">
+        <input type="number" id="reg-age" placeholder="Age" />
+        <select id="reg-role">
+          <option value="" disabled selected>Select Role</option>
+          <option value="User">User</option>
+          <option value="Moderator">Moderator</option>
+          <option value="Admin">Admin</option>
+        </select>
+      </div>
+      <button type="submit" class="glow-btn">Establish Connection</button>
+    </form>
+  </div>
+</section>
+
+<!-- ===================== APP VIEW ===================== -->
+<section id="view-app" class="hidden">
+  <div class="topbar">
+    <div class="brand">◎ MISSION&nbsp;CONTROL</div>
+    <nav class="nav">
+      <button data-route="app" class="active">Map</button>
+      <button data-route="profile">Profile</button>
+    </nav>
+    <div class="spacer"></div>
+    <div class="user-chip">Cmdr. <span class="uname" id="topbar-user">—</span></div>
+    <button class="logout-btn" id="logout-btn">Logout</button>
+  </div>
+
+  <div class="app-body">
+    <!-- DASHBOARD / MAP -->
+    <div id="view-dashboard" style="flex:1;display:flex;min-height:0;">
+      <aside class="sidebar">
+        <div class="side-section">
+          <h3>Planets <span id="cnt-planets"></span></h3>
+          <div id="list-planets"></div>
+        </div>
+        <div class="side-section">
+          <h3>Rockets <span id="cnt-rockets"></span></h3>
+          <div id="list-rockets"></div>
+        </div>
+        <div class="side-section">
+          <h3>Satellites <span id="cnt-sats"></span></h3>
+          <div id="list-sats"></div>
+        </div>
+      </aside>
+
+      <div class="map-wrap">
+        <canvas id="space-canvas"></canvas>
+        <div class="map-toolbar">
+          <button id="btn-pause" title="Pause / resume simulation">⏸</button>
+          <button id="btn-fit" title="Fit view">⊡</button>
+          <button id="btn-zoom-in" title="Zoom in">＋</button>
+          <button id="btn-zoom-out" title="Zoom out">－</button>
+        </div>
+        <div class="hint">Drag to pan · scroll to zoom · click a rocket/satellite to control it</div>
+
+        <div class="inspector hidden" id="inspector">
+          <button class="close-x" id="insp-close">×</button>
+          <h4><span class="dot" id="insp-dot"></span><span id="insp-name"></span> <span class="badge" id="insp-badge"></span></h4>
+          <div class="desc" id="insp-desc"></div>
+          <div class="stat-row"><span>Position</span><span class="coord-live" id="insp-coord">0, 0</span></div>
+          <div class="stat-row"><span>Velocity</span><span class="coord-live" id="insp-vel">0</span></div>
+          <div class="stat-row"><span>Type</span><span id="insp-type"></span></div>
+          <div class="stat-row"><span>Crew</span><span id="insp-crew"></span></div>
+          <div class="ctrl">
+            <label>Speed <span id="lbl-speed">0</span></label>
+            <input type="range" id="ctrl-speed" min="0" max="60" step="1" />
+          </div>
+          <div class="ctrl">
+            <label>Direction <span id="lbl-dir">0°</span></label>
+            <input type="range" id="ctrl-dir" min="0" max="359" step="1" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div id="view-profile" class="hidden">
+      <div class="profile-card">
+        <div class="avatar" id="prof-avatar">A</div>
+        <h2 class="title" id="prof-name" style="margin-bottom:18px;">Commander</h2>
+        <div class="field"><span>Username</span><span id="prof-username">—</span></div>
+        <div class="field"><span>Email</span><span id="prof-email">—</span></div>
+        <div class="field"><span>User ID</span><span id="prof-id">—</span></div>
+        <div class="field"><span>Role</span><span class="role-tag" id="prof-role">—</span></div>
+        <div class="field"><span>Status</span><span style="color:#00ffcc;">● Online</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== AI CHATBOT ===================== -->
+<button id="ai-fab" title="Open Mission AI">
+  <!-- planet-with-rings icon -->
+  <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="32" cy="32" r="14" fill="#cfd8e6"/>
+    <ellipse cx="32" cy="32" rx="30" ry="11" stroke="#00ffff" stroke-width="3" transform="rotate(-22 32 32)"/>
+    <circle cx="10" cy="14" r="2.4" fill="#cfd8e6"/>
+    <circle cx="54" cy="48" r="2.4" fill="#cfd8e6"/>
+    <circle cx="50" cy="12" r="1.8" fill="#cfd8e6"/>
+    <circle cx="14" cy="52" r="1.8" fill="#cfd8e6"/>
+  </svg>
+</button>
+
+<div class="ai-panel" id="ai-panel">
+  <div class="ai-resize" id="ai-resize"></div>
+  <div class="ai-head">
+    <div class="ai-title">MISSION AI</div>
+    <div class="ai-status" id="ai-status">Mission AI online</div>
+    <button class="ai-close" id="ai-close">×</button>
+  </div>
+  <div class="ai-messages" id="ai-messages"></div>
+  <div class="ai-input">
+    <textarea id="ai-text" placeholder="Ask about the fleet, planets, navigation…"></textarea>
+    <button class="ai-send" id="ai-send">Send</button>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
