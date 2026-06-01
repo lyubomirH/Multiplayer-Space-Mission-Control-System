@@ -1,15 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mission Control Login</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Star-Fighter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="app"></div>
+<div id="stars"></div>
 
-  <script>window.aichatbotApiKey="80242004-fc6e-4c9b-8bdf-89f9d8dda212"; window.aichatbotProviderId="f9e9c5e4-6d1a-4b8c-8d3f-3f9e9c5e46d1";</script><script src="https://script.chatlab.com/aichatbot.js" id="80242004-fc6e-4c9b-8bdf-89f9d8dda212" defer></script>
-  <script src="script.js"></script>
+<!-- ===================== AUTH VIEW ===================== -->
+<section id="view-auth">
+  <div class="glass-card">
+    <h1 class="title">Galaxy Access</h1>
+    <div class="tab-container">
+      <button id="tab-login" class="tab active">Login</button>
+      <button id="tab-register" class="tab">Register</button>
+    </div>
+    <div id="message-container" class="message hidden"></div>
+
+    <form id="login-form" class="auth-form">
+      <div class="input-group">
+        <input type="email" id="login-email" placeholder="Email Address" />
+      </div>
+      <div class="input-group">
+        <input type="password" id="login-password" class="password-input" placeholder="Password" />
+        <button type="button" class="toggle-password">👁️</button>
+      </div>
+      <button type="submit" class="glow-btn">Initialize Login</button>
+    </form>
+
+    <form id="register-form" class="auth-form hidden">
+      <div class="input-group"><input type="email" id="reg-email" placeholder="Email Address" /></div>
+      <div class="input-group"><input type="text" id="reg-username" placeholder="Username" /></div>
+      <div class="input-group">
+        <input type="password" id="reg-password" class="password-input" placeholder="Password" />
+        <button type="button" class="toggle-password">👁️</button>
+      </div>
+      <div class="input-group dual-group">
+        <input type="number" id="reg-age" placeholder="Age" />
+        <select id="reg-role">
+          <option value="" disabled selected>Select Role</option>
+          <option value="User">User</option>
+          <option value="Moderator">Moderator</option>
+          <option value="Admin">Admin</option>
+        </select>
+      </div>
+      <button type="submit" class="glow-btn">Establish Connection</button>
+    </form>
+  </div>
+</section>
+
+<!-- ===================== APP VIEW ===================== -->
+<section id="view-app" class="hidden">
+  <div class="topbar">
+    <div class="brand">🚀 STAR-FIGHTER</div>
+    <nav class="nav">
+      <button data-route="app" class="active">Hangar</button>
+      <button data-route="profile">Profile</button>
+    </nav>
+    <div class="spacer"></div>
+    <div class="user-chip">Cmdr. <span class="uname" id="topbar-user">—</span></div>
+    <button class="logout-btn" id="logout-btn">Logout</button>
+  </div>
+
+  <div class="app-body">
+    <!-- STAR-FIGHTER GAME (embedded) -->
+    <div id="view-game">
+      <iframe id="game-frame" title="Star-Fighter" allow="autoplay"></iframe>
+    </div>
+
+    <!-- PROFILE -->
+    <div id="view-profile" class="hidden">
+      <div class="profile-card">
+        <div class="avatar" id="prof-avatar">A</div>
+        <h2 class="title" id="prof-name" style="margin-bottom:18px;">Commander</h2>
+        <div class="field"><span>Username</span><span id="prof-username">—</span></div>
+        <div class="field"><span>Email</span><span id="prof-email">—</span></div>
+        <div class="field"><span>User ID</span><span id="prof-id">—</span></div>
+        <div class="field"><span>Role</span><span class="role-tag" id="prof-role">—</span></div>
+        <div class="field"><span>Status</span><span style="color:#00ffcc;">● Online</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- The AI assistant now lives inside the game as the R2 co-pilot. -->
+
+<script src="config.js"></script>
+<script src="script.js"></script>
 </body>
 </html>

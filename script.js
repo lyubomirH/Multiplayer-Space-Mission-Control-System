@@ -1,479 +1,159 @@
-const app = document.getElementById("app");
+/* ============================================================
+   CONFIG  (real values live in config.js via window.SMC_CONFIG)
+   ============================================================ */
+const CONFIG = {
+  API_BASE: (window.SMC_CONFIG && window.SMC_CONFIG.API_BASE) || 'http://localhost:5050/api'
+};
 
-let currentUser = localStorage.getItem("missionUser");
+/* ============================================================
+   SMALL HELPERS
+   ============================================================ */
+const $ = sel => document.querySelector(sel);
+const $$ = sel => document.querySelectorAll(sel);
 
-function render() {
-  currentUser ? renderDashboard() : renderLogin();
-}
+function getUser(){ try{return JSON.parse(localStorage.getItem('smc_user'));}catch{return null;} }
+function setUser(u){ localStorage.setItem('smc_user', JSON.stringify(u)); }
+function clearUser(){ localStorage.removeItem('smc_user'); }
 
-function renderLogin() {
-  app.innerHTML = `
-    <div class="stars"></div>
-
-    <div class="container">
-      <div class="card">
-        <div class="logo">🚀</div>
-
-        <h1>Mission Control</h1>
-        <p class="subtitle">Secure Space Operations Login</p>
-
-        <form id="loginForm">
-          <label>Username</label>
-          <input
-            type="text"
-            id="username"
-            placeholder="Commander name"
-          />
-
-          <label>Password</label>
-          <input
-            type="password"
-            id="password"
-            placeholder="Access code"
-          />
-
-          <button type="submit">
-            Launch Access
-          </button>
-
-          <p class="error" id="error"></p>
-        </form>
-
-        <p class="subtitle">
-          No account?
-          <a href="#" id="showRegister">
-            Sign up
-          </a>
-        </p>
-      </div>
-    </div>
-  `;
-
-  document
-    .getElementById("loginForm")
-    .addEventListener("submit", login);
-
-  document
-    .getElementById("showRegister")
-    .addEventListener("click", renderRegister);
-}
-
-function renderRegister() {
-  app.innerHTML = `
-    <div class="stars"></div>
-
-    <div class="container">
-      <div class="card">
-        <div class="logo">🪐</div>
-
-        <h1>Create Account</h1>
-        <p class="subtitle">
-          Join the Mission Control Crew
-        </p>
-
-        <form id="registerForm">
-          <label>Username</label>
-          <input
-            type="text"
-            id="regUsername"
-            placeholder="Choose commander name"
-          />
-
-          <label>Email</label>
-          <input
-            type="email"
-            id="regEmail"
-            placeholder="mission@email.com"
-          />
-
-          <label>Password</label>
-          <input
-            type="password"
-            id="regPassword"
-            placeholder="Create access code"
-          />
-
-          <button type="submit">
-            Sign Up
-          </button>
-
-          <p class="error" id="error"></p>
-        </form>
-
-        <p class="subtitle">
-          Already have an account?
-          <a href="#" id="showLogin">
-            Login
-          </a>
-        </p>
-      </div>
-    </div>
-  `;
-
-  document
-    .getElementById("registerForm")
-    .addEventListener("submit", register);
-
-  document
-    .getElementById("showLogin")
-    .addEventListener("click", renderLogin);
-}
-
-function register(event) {
-  event.preventDefault();
-
-  const username =
-    document.getElementById("regUsername").value.trim();
-
-  const email =
-    document.getElementById("regEmail").value.trim();
-
-  const password =
-    document.getElementById("regPassword").value.trim();
-
-  const error =
-    document.getElementById("error");
-
-  if (
-    username === "" ||
-    email === "" ||
-    password === ""
-  ) {
-    error.textContent =
-      "All fields are required.";
-
-    return;
+/* ============================================================
+   STARFIELD (animated auth/app background)
+   ============================================================ */
+(function buildStars(){
+  const c=$('#stars'); if(!c) return;
+  for(let i=0;i<150;i++){
+    const s=document.createElement('div');s.className='star';
+    const sz=Math.random()*3;
+    s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-duration:${Math.random()*3+2}s`;
+    c.appendChild(s);
   }
+})();
 
-  const users =
-    JSON.parse(localStorage.getItem("users")) || [];
+/* ============================================================
+   AUTH
+   ============================================================ */
+const tabLogin=$('#tab-login'), tabRegister=$('#tab-register');
+const loginForm=$('#login-form'), registerForm=$('#register-form');
+const msgBox=$('#message-container');
 
-  const existingUser =
-    users.find(user => user.username === username);
-
-  if (existingUser) {
-    error.textContent =
-      "This username already exists.";
-
-    return;
-  }
-
-  users.push({
-    username,
-    email,
-    password
-  });
-
-  localStorage.setItem(
-    "users",
-    JSON.stringify(users)
-  );
-
-  localStorage.setItem(
-    "missionUser",
-    username
-  );
-
-  currentUser = username;
-
-  renderDashboard();
+function showMessage(text, isError=true){
+  msgBox.textContent=text;
+  msgBox.className=`message ${isError?'error':'success'}`;
 }
-
-function login(event) {
-  event.preventDefault();
-
-  const username =
-    document.getElementById("username").value.trim();
-
-  const password =
-    document.getElementById("password").value.trim();
-
-  const error =
-    document.getElementById("error");
-
-  const users =
-    JSON.parse(localStorage.getItem("users")) || [];
-
-  const foundUser = users.find(
-    user =>
-      user.username === username &&
-      user.password === password
-  );
-
-  if (
-    foundUser ||
-    (username === "admin" && password === "1234")
-  ) {
-    localStorage.setItem(
-      "missionUser",
-      username
-    );
-
-    currentUser = username;
-
-    renderDashboard();
-  } else {
-    error.textContent =
-      "Invalid mission credentials.";
-  }
+function switchTab(showLogin){
+  msgBox.className='message hidden';
+  tabLogin.classList.toggle('active',showLogin);
+  tabRegister.classList.toggle('active',!showLogin);
+  loginForm.classList.toggle('hidden',!showLogin);
+  registerForm.classList.toggle('hidden',showLogin);
 }
+tabLogin.addEventListener('click',()=>switchTab(true));
+tabRegister.addEventListener('click',()=>switchTab(false));
 
-function renderDashboard() {
-  app.innerHTML = `
-    <div class="stars"></div>
+$$('.toggle-password').forEach(btn=>btn.addEventListener('click',function(){
+  const input=this.previousElementSibling;
+  input.type = input.type==='password' ? 'text' : 'password';
+}));
 
-    <div class="main-page">
-
-      <header class="top-bar">
-
-  <h2>🚀 Space Mission Control</h2>
-
-  <div class="header-search">
-
-    <input
-      type="text"
-      id="searchInput"
-      placeholder="Search spacecraft..."
-    />
-
-    <button id="searchBtn">
-      Search
-    </button>
-
-  </div>
-
-  <button id="logoutBtn">
-    Logout
-  </button>
-
-</header>
-
-      <main class="dashboard-grid">
-
-        <section class="main-window">
-
-          <h1>Mission Main Window</h1>
-
-          <p>Earth Orbit Monitoring System</p>
-
-          <div id="searchResult" class="search-result">
-
-            <div class="planet">
-              🌍
-            </div>
-
-            <div class="mission-info">
-              <p>
-                Status:
-                <span class="status">
-                  ONLINE
-                </span>
-              </p>
-
-              <p>
-                Current Mission:
-                Artemis Deep Space Scan
-              </p>
-
-              <p>
-                Commander:
-                ${currentUser}
-              </p>
-            </div>
-
-          </div>
-
-        </section>
-
-        <aside class="favorites">
-
-          <h2>
-            Favourite Spacecrafts
-          </h2>
-
-          <div class="craft-card">
-            <h3>🚀 Apollo 11</h3>
-            <p>Status: Historical</p>
-          </div>
-
-          <div class="craft-card">
-            <h3>🛰️ ISS</h3>
-            <p>Status: Active</p>
-          </div>
-
-          <div class="craft-card">
-            <h3>🚀 SpaceX Dragon</h3>
-            <p>Status: Docked</p>
-          </div>
-
-          <div class="craft-card">
-            <h3>🛸 Voyager 1</h3>
-            <p>Status: Deep Space</p>
-          </div>
-
-          <div class="craft-card">
-            <h3>🌕 Artemis</h3>
-            <p>Status: Preparing</p>
-          </div>
-
-        </aside>
-
-      </main>
-
-      <section class="statistics">
-
-        <h2>
-          Aircraft Statistics
-        </h2>
-
-        <div class="stats-grid">
-
-          <div class="stat-card">
-            <h3>Velocity</h3>
-            <p>27,500 km/h</p>
-          </div>
-
-          <div class="stat-card">
-            <h3>Altitude</h3>
-            <p>408 km</p>
-          </div>
-
-          <div class="stat-card">
-            <h3>Fuel</h3>
-            <p>82%</p>
-          </div>
-
-          <div class="stat-card">
-            <h3>Oxygen</h3>
-            <p>96%</p>
-          </div>
-
-          <div class="stat-card">
-            <h3>Signal</h3>
-            <p>Stable</p>
-          </div>
-
-        </div>
-
-      </section>
-
-    </div>
-  `;
-
-  const spacecrafts = {
-    apollo: {
-      icon: "🚀",
-      name: "Apollo 11",
-      mission: "First Moon Landing",
-      status: "Completed",
-      speed: "39,897 km/h"
-    },
-
-    iss: {
-      icon: "🛰️",
-      name: "International Space Station",
-      mission: "Earth Orbit Research",
-      status: "Active",
-      speed: "27,600 km/h"
-    },
-
-    dragon: {
-      icon: "🚀",
-      name: "SpaceX Dragon",
-      mission: "Cargo & Crew Transport",
-      status: "Docked",
-      speed: "28,000 km/h"
-    },
-
-    voyager: {
-      icon: "🛸",
-      name: "Voyager 1",
-      mission: "Interstellar Exploration",
-      status: "Deep Space",
-      speed: "61,000 km/h"
-    },
-
-    artemis: {
-      icon: "🌕",
-      name: "Artemis",
-      mission: "Moon Exploration",
-      status: "Preparing",
-      speed: "32,000 km/h"
+loginForm.addEventListener('submit', async e=>{
+  e.preventDefault();
+  const email=$('#login-email').value.trim();
+  const password=$('#login-password').value.trim();
+  if(!email) return showMessage('Email cannot be empty.');
+  if(!password) return showMessage('Password cannot be empty.');
+  showMessage('Authenticating…',false);
+  try{
+    const res=await fetch(`${CONFIG.API_BASE}/auth/login`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email,password})
+    });
+    const data=await res.json();
+    if(!res.ok || data.isSuccess===false){
+      return showMessage(data.message || 'Login failed.');
     }
-  };
-
-  document
-    .getElementById("searchBtn")
-    .addEventListener("click", searchAircraft);
-
-  function searchAircraft() {
-    const value =
-      document
-        .getElementById("searchInput")
-        .value
-        .toLowerCase()
-        .trim();
-
-    const result =
-      document.getElementById("searchResult");
-
-    if (spacecrafts[value]) {
-      const craft = spacecrafts[value];
-
-      result.innerHTML = `
-        <div class="aircraft-display">
-
-          <div class="aircraft-icon">
-            ${craft.icon}
-          </div>
-
-          <h2>
-            ${craft.name}
-          </h2>
-
-          <div class="mission-info">
-
-            <p>
-              Mission:
-              ${craft.mission}
-            </p>
-
-            <p>
-              Status:
-              <span class="status">
-                ${craft.status}
-              </span>
-            </p>
-
-            <p>
-              Speed:
-              ${craft.speed}
-            </p>
-
-          </div>
-
-        </div>
-      `;
-    } else {
-      result.innerHTML = `
-        <div class="not-found">
-          ❌ Aircraft not found
-        </div>
-      `;
-    }
+    setUser(data);
+    showMessage('Access granted. Launching hangar…',false);
+    setTimeout(()=>enterApp(),700);
+  }catch(err){
+    // API offline -> allow demo login so the rest of the app is usable
+    setUser({id:0,username:email.split('@')[0]||'Pilot',email,role:'User',message:'demo'});
+    showMessage('API offline — entering demo mode…',false);
+    setTimeout(()=>enterApp(),700);
   }
+});
 
-  document
-    .getElementById("logoutBtn")
-    .addEventListener("click", logout);
+registerForm.addEventListener('submit', async e=>{
+  e.preventDefault();
+  const email=$('#reg-email').value.trim();
+  const username=$('#reg-username').value.trim();
+  const password=$('#reg-password').value.trim();
+  const age=$('#reg-age').value.trim();
+  const role=$('#reg-role').value;
+  if(!email) return showMessage('Email cannot be empty.');
+  if(username.length<3) return showMessage('Username must be at least 3 characters.');
+  if(password.length<6) return showMessage('Password must be at least 6 characters.');
+  if(!age||isNaN(age)||parseInt(age)<13) return showMessage('You must be a valid number and at least 13 years old.');
+  if(!role) return showMessage('Please select a role.');
+  showMessage('Establishing connection…',false);
+  try{
+    const res=await fetch(`${CONFIG.API_BASE}/auth/register`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email,username,password,confirmPassword:password,age:parseInt(age),role})
+    });
+    const data=await res.json();
+    if(!res.ok || data.isSuccess===false){
+      return showMessage(data.message || 'Registration failed.');
+    }
+    showMessage('Registration successful! Welcome to the squadron.',false);
+    setTimeout(()=>{registerForm.reset();switchTab(true);},1500);
+  }catch(err){
+    showMessage('API offline — registration unavailable in demo mode.');
+  }
+});
+
+/* ============================================================
+   ROUTING / VIEW SWITCHING
+   ============================================================ */
+const viewAuth=$('#view-auth'), viewApp=$('#view-app');
+const viewGame=$('#view-game'), viewProfile=$('#view-profile');
+const gameFrame=$('#game-frame');
+
+function enterApp(){
+  const u=getUser(); if(!u){showAuth();return;}
+  viewAuth.classList.add('hidden');
+  viewApp.classList.remove('hidden');
+  $('#topbar-user').textContent=u.username||'Pilot';
+  if(gameFrame && !gameFrame.getAttribute('src')) gameFrame.setAttribute('src','game.html'); // load game on first entry
+  route('app');
+}
+function showAuth(){
+  viewApp.classList.add('hidden');
+  viewAuth.classList.remove('hidden');
+}
+function route(name){
+  $$('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.route===name));
+  if(name==='profile'){
+    viewGame.classList.add('hidden');
+    viewProfile.classList.remove('hidden');
+    fillProfile();
+  }else{
+    viewProfile.classList.add('hidden');
+    viewGame.classList.remove('hidden');
+  }
+}
+$$('.nav button').forEach(b=>b.addEventListener('click',()=>route(b.dataset.route)));
+$('#logout-btn').addEventListener('click',()=>{clearUser();showAuth();});
+
+function fillProfile(){
+  const u=getUser()||{};
+  $('#prof-avatar').textContent=(u.username||'P').charAt(0).toUpperCase();
+  $('#prof-name').textContent=u.username||'Pilot';
+  $('#prof-username').textContent=u.username||'—';
+  $('#prof-email').textContent=u.email||'—';
+  $('#prof-id').textContent=u.id??'—';
+  $('#prof-role').textContent=u.role||'User';
 }
 
-function logout() {
-  localStorage.removeItem("missionUser");
-
-  currentUser = null;
-
-  renderLogin();
-}
-
-render();
+/* ============================================================
+   BOOT
+   ============================================================ */
+if(getUser()) enterApp(); else showAuth();
