@@ -1,0 +1,174 @@
+/* ============================================================
+   STAR-FIGHTER — game page styles (separate from the dashboard)
+   ============================================================ */
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; height: 100%; overflow: hidden;
+  background: #000; color: #cfe8ff;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  user-select: none;
+}
+#game-canvas { position: fixed; inset: 0; display: block; }
+
+/* ---------- HUD ---------- */
+#hud { position: fixed; inset: 0; pointer-events: none; z-index: 10; }
+
+#crosshair {
+  position: absolute; left: 50%; top: 50%;
+  width: 46px; height: 46px; transform: translate(-50%, -50%);
+  border: 2px solid rgba(120, 220, 255, .7); border-radius: 50%;
+}
+#crosshair::before, #crosshair::after {
+  content: ""; position: absolute; background: rgba(120, 220, 255, .7);
+}
+#crosshair::before { left: 50%; top: -10px; width: 2px; height: 10px; transform: translateX(-50%); }
+#crosshair::after  { top: 50%; left: -10px; height: 2px; width: 10px; transform: translateY(-50%); }
+
+.hud-corner {
+  position: absolute; padding: 12px 16px;
+  font-size: 13px; letter-spacing: .06em; text-transform: uppercase;
+  text-shadow: 0 0 8px rgba(0, 140, 255, .6);
+}
+#hud-tl { top: 0; left: 0; }
+#hud-tr { top: 0; right: 0; text-align: right; }
+
+.bar-wrap { width: 220px; height: 12px; border: 1px solid rgba(120,220,255,.5);
+  border-radius: 6px; overflow: hidden; margin-top: 4px; background: rgba(0,20,40,.5); }
+#hp-bar { height: 100%; width: 100%;
+  background: linear-gradient(90deg, #2ecc71, #27e0a0);
+  transition: width .15s linear; }
+#hp-bar.warn { background: linear-gradient(90deg, #f39c12, #f1c40f); }
+#hp-bar.crit { background: linear-gradient(90deg, #e74c3c, #ff6b5b); }
+
+.big-num { font-size: 30px; font-weight: 700; color: #fff; text-shadow: 0 0 12px rgba(80,180,255,.8); }
+.lbl { opacity: .65; font-size: 11px; }
+
+#boost-wrap { width: 220px; height: 6px; border: 1px solid rgba(120,220,255,.4);
+  border-radius: 4px; overflow: hidden; margin-top: 8px; background: rgba(0,20,40,.5); }
+#boost-bar { height: 100%; width: 100%; background: linear-gradient(90deg, #3498db, #5dade2); }
+
+/* ---------- center banners ---------- */
+#banner {
+  position: absolute; left: 50%; top: 30%; transform: translate(-50%,-50%);
+  text-align: center; font-size: 34px; font-weight: 800; letter-spacing: .12em;
+  text-transform: uppercase; color: #fff; text-shadow: 0 0 18px rgba(80,180,255,.9);
+  opacity: 0; transition: opacity .4s; }
+#banner.show { opacity: 1; }
+
+/* ---------- overlays (loading / menu / gameover) ---------- */
+.overlay {
+  position: fixed; inset: 0; z-index: 30; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; text-align: center;
+  background: radial-gradient(ellipse at center, rgba(8,16,40,.85), rgba(0,0,4,.96));
+  pointer-events: auto; gap: 18px;
+}
+.overlay.hidden { display: none; }
+.overlay h1 { font-size: 46px; margin: 0; letter-spacing: .18em;
+  color: #fff; text-shadow: 0 0 24px rgba(70,150,255,.9); }
+.overlay h1 .accent { color: #ffd34d; text-shadow: 0 0 24px rgba(255,200,60,.9); }
+.overlay p { max-width: 520px; opacity: .8; line-height: 1.5; margin: 0; }
+.overlay .stat { font-size: 22px; color: #ffd34d; }
+
+.btn {
+  pointer-events: auto; cursor: pointer; border: 1px solid #4aa3ff;
+  background: linear-gradient(180deg, rgba(40,110,200,.5), rgba(20,60,130,.5));
+  color: #eaf4ff; padding: 12px 28px; border-radius: 8px; font-size: 16px;
+  letter-spacing: .08em; text-transform: uppercase; transition: .15s; }
+.btn:hover { background: linear-gradient(180deg, rgba(70,150,255,.7), rgba(30,90,180,.7));
+  box-shadow: 0 0 18px rgba(70,150,255,.6); }
+
+.keys { display: grid; grid-template-columns: auto auto; gap: 6px 18px;
+  font-size: 14px; opacity: .85; margin-top: 6px; }
+.keys b { color: #ffd34d; font-weight: 600; }
+
+#spinner { width: 54px; height: 54px; border: 4px solid rgba(120,200,255,.25);
+  border-top-color: #5dade2; border-radius: 50%; animation: spin 1s linear infinite; }
+#load-pct { font-size: 18px; color: #cfe8ff; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.topbar-link { position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
+  z-index: 31; font-size: 12px; opacity: .6; }
+.topbar-link a { color: #9ad0ff; text-decoration: none; }
+.topbar-link a:hover { text-decoration: underline; }
+
+/* ---------- AI co-pilot ---------- */
+#copilot { position: fixed; right: 16px; bottom: 16px; width: 320px; z-index: 20;
+  background: rgba(6,14,32,.92); border: 1px solid rgba(90,173,226,.4);
+  border-radius: 12px; overflow: hidden; box-shadow: 0 8px 30px rgba(0,0,0,.5);
+  display: flex; flex-direction: column; pointer-events: auto;
+  transform: translateY(calc(100% - 42px)); transition: transform .25s; }
+#copilot.open { transform: translateY(0); }
+#copilot-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px;
+  cursor: pointer; background: rgba(20,50,100,.5); }
+#copilot-head .dot { width: 9px; height: 9px; border-radius: 50%; background: #2ecc71;
+  box-shadow: 0 0 8px #2ecc71; }
+#copilot-head .title { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; }
+#copilot-head .status { margin-left: auto; font-size: 10px; opacity: .6; }
+#copilot-msgs { height: 200px; overflow-y: auto; padding: 10px; display: flex;
+  flex-direction: column; gap: 8px; font-size: 13px; }
+.cp-msg { padding: 7px 10px; border-radius: 8px; max-width: 90%; line-height: 1.35; }
+.cp-msg.bot { background: rgba(40,80,140,.4); align-self: flex-start; }
+.cp-msg.user { background: rgba(60,140,90,.4); align-self: flex-end; }
+.cp-msg.typing { opacity: .6; }
+#copilot-input { display: flex; border-top: 1px solid rgba(90,173,226,.3); }
+#copilot-text { flex: 1; background: transparent; border: 0; color: #eaf4ff;
+  padding: 10px; font-size: 13px; outline: none; }
+#copilot-send { background: rgba(70,150,255,.5); border: 0; color: #fff;
+  padding: 0 14px; cursor: pointer; }
+#copilot-send:hover { background: rgba(90,170,255,.7); }
+
+/* ---------- leaderboard (game-over overlay) ---------- */
+#leaderboard { width: 360px; max-width: 88vw; background: rgba(8,16,40,.6);
+  border: 1px solid rgba(120,200,255,.25); border-radius: 10px; padding: 12px 16px; }
+#leaderboard .lb-title { font-size: 13px; letter-spacing: .1em; text-transform: uppercase;
+  color: #ffd34d; margin-bottom: 8px; text-align: center; }
+#lb-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+#lb-list li { display: flex; align-items: center; gap: 10px; font-size: 14px;
+  padding: 4px 8px; border-radius: 6px; }
+#lb-list li:nth-child(odd) { background: rgba(255,255,255,.04); }
+#lb-list li.me { background: rgba(70,150,255,.28); box-shadow: inset 0 0 0 1px rgba(120,200,255,.4); }
+.lb-rank { width: 22px; color: #9ad0ff; font-weight: 700; text-align: right; }
+.lb-name { flex: 1; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb-pts { color: #fff; font-weight: 700; }
+.lb-empty { opacity: .6; justify-content: center; }
+
+/* ---------- radar / minimap ---------- */
+#radar { position: absolute; left: 16px; bottom: 16px;
+  border: 1px solid rgba(120,200,255,.35); border-radius: 50%;
+  background: radial-gradient(circle, rgba(10,30,60,.55), rgba(4,10,24,.7));
+  box-shadow: 0 0 14px rgba(0,120,255,.25); }
+#hud-hint { position: absolute; right: 16px; bottom: 14px; font-size: 11px;
+  letter-spacing: .05em; opacity: .55; text-transform: uppercase; }
+#mute-ind { font-size: 13px; }
+
+/* ---------- auto lock-on reticle + mode indicators ---------- */
+#lock-reticle { position: absolute; width: 54px; height: 54px; display: none;
+  transform: translate(-50%, -50%); pointer-events: none;
+  border: 2px solid #ff5b6b; border-radius: 6px;
+  box-shadow: 0 0 10px rgba(255,91,107,.7), inset 0 0 8px rgba(255,91,107,.4);
+  animation: lockpulse .8s ease-in-out infinite; }
+@keyframes lockpulse { 0%,100% { opacity: .5; } 50% { opacity: 1; } }
+#mode-ind { position: absolute; left: 50%; top: 78px; transform: translateX(-50%);
+  display: flex; gap: 8px; pointer-events: none; }
+#mode-ind span { font-size: 12px; letter-spacing: .08em; padding: 3px 10px; border-radius: 6px;
+  font-weight: 700; text-transform: uppercase; }
+#mode-ind .m-auto { background: rgba(46,204,113,.25); border: 1px solid #2ecc71; color: #aef5cf; }
+#mode-ind .m-lock { background: rgba(255,91,107,.22); border: 1px solid #ff5b6b; color: #ffc2c8; }
+
+/* ---------- R2-D2 autopilot badge ---------- */
+#r2-badge { position: absolute; left: 50%; top: 104px; transform: translateX(-50%);
+  width: 64px; height: 64px; display: none; pointer-events: none;
+  filter: drop-shadow(0 0 10px rgba(70,150,255,.7));
+  animation: r2bob 1.4s ease-in-out infinite; }
+@keyframes r2bob { 0%,100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-5px); } }
+
+/* co-pilot accessible above the pause overlay */
+#copilot.elevated { z-index: 40; box-shadow: 0 0 0 1px rgba(120,200,255,.5), 0 8px 40px rgba(0,0,0,.7); }
+
+/* typing suggestions */
+#copilot-suggest { display: none; flex-wrap: wrap; gap: 6px; padding: 0 10px 8px; }
+.cp-sug { font: inherit; font-size: 12px; cursor: pointer; color: #cfe8ff;
+  background: rgba(70,150,255,.18); border: 1px solid rgba(120,200,255,.35);
+  border-radius: 999px; padding: 4px 10px; transition: .12s; }
+.cp-sug:hover { background: rgba(90,170,255,.4); }

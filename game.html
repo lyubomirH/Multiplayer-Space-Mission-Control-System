@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Star-Fighter — Mission Control</title>
+  <link rel="stylesheet" href="game.css" />
+  <!-- three.js (module) + addon loaders -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <!-- local runtime config (API_BASE / AI_* ) shared with the dashboard -->
+  <script src="config.js"></script>
+</head>
+<body>
+  <canvas id="game-canvas"></canvas>
+
+  <!-- HUD -->
+  <div id="hud">
+    <div class="hud-corner" id="hud-tl">
+      <div class="lbl">Hull integrity</div>
+      <div class="bar-wrap"><div id="hp-bar"></div></div>
+      <div id="boost-wrap"><div id="boost-bar"></div></div>
+      <div class="lbl" style="margin-top:6px">Throttle <span id="throttle-val">100%</span></div>
+    </div>
+    <div class="hud-corner" id="hud-tr">
+      <div class="lbl">Score</div>
+      <div class="big-num" id="score-val">0</div>
+      <div class="lbl">Wave <span id="wave-val">1</span> · Hostiles <span id="enemies-val">0</span></div>
+    </div>
+    <div id="crosshair"></div>
+    <div id="lock-reticle"></div>
+    <div id="mode-ind"></div>
+    <img id="r2-badge" src="images/r2d2.png" alt="" onerror="this.dataset.failed='1'" />
+    <div id="banner"></div>
+    <canvas id="radar" width="160" height="160"></canvas>
+    <div id="hud-hint"><span id="mute-ind">🔊</span> Q reverse · C cobra · O autopilot · L lock-on · M mute · P pause</div>
+  </div>
+
+  <!-- AI co-pilot -->
+  <div id="copilot">
+    <div id="copilot-head">
+      <span class="dot"></span>
+      <span class="title">R2 Co-Pilot</span>
+      <span class="status" id="copilot-status">online</span>
+    </div>
+    <div id="copilot-msgs"></div>
+    <div id="copilot-suggest"></div>
+    <div id="copilot-input">
+      <input id="copilot-text" type="text" placeholder="Ask your co-pilot…" autocomplete="off" />
+      <button id="copilot-send">Send</button>
+    </div>
+  </div>
+
+  <!-- loading overlay -->
+  <div class="overlay" id="loading">
+    <div id="spinner"></div>
+    <div id="load-pct">Loading starfighters… 0%</div>
+  </div>
+
+  <!-- start menu -->
+  <div class="overlay hidden" id="menu">
+    <h1>STAR<span class="accent">·</span>FIGHTER</h1>
+    <p>Pilot a Rebel X-wing against waves of incoming TIE fighters. Survive, rack up kills, and let your co-pilot keep you posted.</p>
+    <div class="keys">
+      <span><b>Mouse</b> steer</span><span><b>Space / Click</b> fire lasers</span>
+      <span><b>W / S</b> throttle up / down</span><span><b>Shift</b> boost</span>
+      <span><b>A / D</b> roll</span><span><b>Q</b> snap-180 (reverse)</span>
+      <span><b>C</b> cobra maneuver</span><span><b>O</b> autopilot</span>
+      <span><b>L</b> auto lock-on</span><span><b>P</b> pause · <b>M</b> mute</span>
+    </div>
+    <button class="btn" id="start-btn">Launch</button>
+  </div>
+
+  <!-- game over -->
+  <div class="overlay hidden" id="gameover">
+    <h1>SHIP <span class="accent">DESTROYED</span></h1>
+    <p class="stat">Score <span id="final-score">0</span> · Wave <span id="final-wave">1</span> · Kills <span id="final-kills">0</span></p>
+    <p id="gameover-quip">The co-pilot ejected in time.</p>
+    <div id="leaderboard">
+      <div class="lb-title">🏆 Top Pilots</div>
+      <ol id="lb-list"><li class="lb-empty">Loading leaderboard…</li></ol>
+    </div>
+    <button class="btn" id="restart-btn">Re-deploy</button>
+  </div>
+
+  <!-- pause -->
+  <div class="overlay hidden" id="pause">
+    <h1>PAUSED</h1>
+    <div class="keys">
+      <span><b>Mouse</b> steer</span><span><b>Space / Click</b> fire lasers</span>
+      <span><b>W / S</b> throttle up / down</span><span><b>Shift</b> boost</span>
+      <span><b>A / D</b> roll</span><span><b>Q</b> snap-180 (reverse)</span>
+      <span><b>C</b> cobra maneuver</span><span><b>O</b> autopilot</span>
+      <span><b>L</b> auto lock-on</span><span><b>M</b> mute</span>
+    </div>
+    <p>Chat with R2 (bottom-right) while paused · press <b>P</b> or Resume to continue</p>
+    <button class="btn" id="resume-btn">Resume</button>
+  </div>
+
+  <script type="module" src="game.js"></script>
+</body>
+</html>
